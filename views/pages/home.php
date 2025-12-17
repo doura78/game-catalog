@@ -22,7 +22,7 @@ $total = $total ?? 0;
             <span class="badge"><?= $game['genre'] ?></span>
             <span class="badge"><?= (int)$game['releaseYear'] ?></span>
             <span class="badge"><?= (int)$game['rating'] ?>/10</span>
-        </div>
-        <a href="/?page=detail&id=<?= $game['id'] ?>">Naviguer vers le détail</a>
+        </div> <br>
+       <button class="badge" type="button"><a class="nav__link" href="/?page=detail&id=<?= $game['id'] ?>">Naviguer vers le détail</a></button>
     </article>
 <?php endforeach; ?>
