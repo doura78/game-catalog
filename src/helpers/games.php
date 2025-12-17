@@ -11,8 +11,19 @@ function getAllGames() : array {
     if ($json === false) {
         return [];
     }
-    $data = json_decode($json, true);
-
+    else {
+        $data = json_decode($json, true);
+    }
     // Retourne les jeux
     return is_array($data) ? $data : [];
+}
+
+function getGameById(int $id) : ?array {
+    foreach (getAllGames() as $gameById) {
+        if ((int)($gameById["id"] ?? 0) === (int)$id) {
+            return $gameById;
+        }
+    }
+    //    return array_find(getAllGames(), fn($gameByI) => (int)($gameByI["id"] ?? 0) === (int)$id);
+    return null;
 }
