@@ -1,89 +1,88 @@
 <?php
 
-require_once __DIR__ . "/../helpers/games.php";
-require_once __DIR__ . "/../helpers/debug.php";
+use JetBrains\PhpStorm\NoReturn;
 
-final class AppController
-{ // final: interdit l'héritage, pas d'enfant possible
-    public function handleRequest(): void
-    {
-        $page = $_GET['page'] ?? 'home';
+require_once __DIR__ . '/../services/games.php';
+require_once __DIR__ . '/../helpers/debug.php';
 
-        switch ($page) {
-            case 'home':
+final class AppController {
+    public function handleRequest (string $path) : void {
+
+        if (preg_match('#^/games/(\d+)$#', $path, $m)) {
+            $this->gameById((int)$m[1]);
+            return;
+        }
+
+        switch ($path) {
+            case '/':
                 $this->home();
                 break;
-            case 'games':
+            case '/random':
+                $this->random();
+            case '/games':
                 $this->games();
-                break;
-            case 'detail':
-                $this->gameById();
                 break;
             default:
                 $this->notFound();
                 break;
-
         }
     }
 
-    // Créer une fonction render - view (string), data (array) -- void
-
-    private function render(string $view, array $data = []): void {
+    private function render (string $view, array $data = [], int $status = 200) : void {
+        http_response_code($status);
         extract($data);
-
-        require __DIR__ . "/../../views/partials/header.php";
-        require __DIR__ . "/../../views/pages/" . $view . ".php";
-        require __DIR__ . "/../../views/partials/footer.php";
+        require __DIR__ . '/../../views/partials/header.php'; // Header
+        require __DIR__ . '/../../views/pages/' . $view . '.php';
+        require __DIR__ . '/../../views/partials/footer.php'; // Footer
     }
 
-    private function home(): void
-    {
-        // 1. Récuperer les 3 jeux.
-        $games = getAllGames();
-        $featuresGames = array_slice($games, 0, 3);
+    private function home() : void {
+        $games = getLimitedGames(3);
 
-       // 2. Renvoie du code response.
-        http_response_code(200);
-
-        //3. Rendre la vue.
-
-        $this->render("home", [
-            'featuredGames' => $featuresGames,
-            'total' => count($games)
+        $this->render('home', [
+            'featuredGames' => $games,
+            'total' => countAll()
         ]);
     }
 
-    private function games(): void
-    {
-        $games = getAllGames();
+    private function games() : void {
+        $games = getAllGamesSortedByRating();
 
-        usort($games, function ($a, $b) {
-            return $b['rating'] <=> $a['rating']; // ça permet de demander l'ordre descendant
-        });
-        http_response_code(200);
-
-        $this->render("games", [
+        $this->render('games', [
             'games' => $games
         ]);
     }
 
-    private function gameById (): void{
-        $id = (int)$_GET['id'] ?? 0;
+    private function gameById (int $id) : void {
         $game = getGameById($id);
 
-        http_response_code(200);
-
-        $this->render("detail", [
+        $this->render('detail', [
             'id' => $id,
             'game' => $game
         ]);
     }
 
-    private function notFound(): void {
-        http_response_code(404);
-
-        $this->render("not-found");
+    private function notFound() : void {
+        $this->render('not-found', [], 404);
     }
 
+    #[NoReturn]
+    private function random() : void {
+        $lastId = $_SESSION['last_random_id'] ?? 0;
+        $game = null;
 
+        for ($i = 0; $i < 5; $i++) {
+            $candidate = getRandomGame();
+
+            if ($candidate['id'] !== $lastId) {
+                $game = $candidate;
+            }
+        }
+
+        $id = $game['id'];
+        $_SESSION['last_random_id'] = $id;
+
+        header('Location: /games/' . $id, true, 302);
+        exit;
+    }
 }
