@@ -15,7 +15,7 @@ $games ??= [];
             <span class="badge"><?= (int)$game['releaseYear'] ?></span>
             <span class="badge"><?= (int)$game['rating'] ?>/10</span>
         </div><br>
-        <button class="badge" type="button"><a class="nav__link" href="/?page=detail&id=<?= $game['id'] ?>">Naviguer vers le détail</a></button>
+        <button class="badge" type="button"><a class="nav__link" href="/game/<?= (int)$game['id'] ?>">Naviguer vers le détail</a></button>
     </article>
 <?php endforeach; ?>
 
