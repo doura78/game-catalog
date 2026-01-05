@@ -8,7 +8,7 @@ final class Request{
         $path = $_SERVER['REQUEST_URI'];
         return is_string($path) && $path!=='' ? $path : '/';
     }
-    private function method() : string {
+    public function method() : string {
         return $_SERVER['REQUEST_METHOD'] ?? 'GET';
     }
 
