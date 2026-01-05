@@ -1,6 +1,10 @@
 <?php
 
+namespace Controller;
+
 use JetBrains\PhpStorm\NoReturn;
+
+
 
 require_once __DIR__ . '/../services/games.php';
 require_once __DIR__ . '/../helpers/debug.php';
@@ -72,7 +76,7 @@ final class AppController {
         $this->render('not-found', [], 404);
     }
 
-    // #[NoReturn]
+    #[NoReturn]
     private function random() : void {
         $lastId = $_SESSION['last_random_id'] ?? 0;
         $game = null;
